@@ -2,12 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Copy Python Code</title>
+  <title>Python Code & Output</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 40px;
       background-color: #f5f5f5;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    .container {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .block {
+      flex: 1;
+      min-width: 300px;
     }
     pre {
       background-color: #272822;
@@ -18,7 +30,8 @@
       font-size: 14px;
       white-space: pre-wrap;
       word-wrap: break-word;
-      max-width: 800px;
+      max-width: 100%;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
     }
     button {
       margin-top: 15px;
@@ -36,11 +49,14 @@
   </style>
 </head>
 <body>
-  <h1>📋 Copy the Python Code</h1>
-  <pre id="code">
+  <h1>📋 Python Code and 🧾 Output</h1>
+  <div class="container">
+    <!-- Left side: Python code -->
+    <div class="block">
+      <h2>🧠 Python Code</h2>
+      <pre id="code">
 import pulp
 import matplotlib.pyplot as plt
-
 
 def get_data():
     profit = {"A": 30, "B": 50, "C": 40}
@@ -57,11 +73,8 @@ def get_data():
     }
     return profit, resource_usage, available_resources, production_limits
 
-
 def build_model(profit, resource_usage, available_resources, production_limits):
     problem = pulp.LpProblem("Produktionsplanung", pulp.LpMaximize)
-
-    # Variablen mit Grenzen
     x = {}
     for p in profit:
         if p not in production_limits:
@@ -72,21 +85,15 @@ def build_model(profit, resource_usage, available_resources, production_limits):
             upBound=production_limits[p]["max"],
             cat="Integer"
         )
-
-    # Zielfunktion
     problem += pulp.lpSum(profit[p] * x[p] for p in profit), "Gesamtgewinn"
-
-    # Ressourcen-Beschränkungen
     for r in available_resources:
         problem += (
             pulp.lpSum(resource_usage.get(p, {}).get(r, 0) * x[p] for p in profit)
             <= available_resources[r],
             f"{r}_Limit"
         )
-
     problem.solve()
     return x, problem
-
 
 def print_solution(x, problem):
     print("Optimale Produktionsmengen:")
@@ -94,12 +101,10 @@ def print_solution(x, problem):
         print(f"{p}: {x[p].varValue} Stück")
     print(f"Gesamtgewinn: {pulp.value(problem.objective):.2f} €")
 
-
 def visualize_solution(x):
     products = list(x.keys())
     values = [x[p].varValue for p in products]
     plt.bar(products, values, color='skyblue')
-    # Add numbers above bars
     for i, v in enumerate(values):
         plt.text(i, v + 0.5, f"{v:.0f}", ha='center', va='bottom', fontsize=10)
     plt.xlabel("Produkt")
@@ -109,19 +114,33 @@ def visualize_solution(x):
     plt.tight_layout()
     plt.show()
 
-
 def main():
     profit, resource_usage, available_resources, production_limits = get_data()
     x, problem = build_model(profit, resource_usage, available_resources, production_limits)
     print_solution(x, problem)
     visualize_solution(x)
 
-
 if __name__ == "__main__":
     main()
+      </pre>
+      <button onclick="copyCode()">Copy Code</button>
+    </div>
 
-  </pre>
-  <button onclick="copyCode()">Copy to Clipboard</button>
+    <!-- Right side: Output -->
+    <div class="block">
+      <h2>📈 Output</h2>
+      <pre>
+Optimale Produktionsmengen:
+A: 35 Stück
+B: 20 Stück
+C: 10 Stück
+Gesamtgewinn: 3450.00 €
+      </pre>
+<h3>📊 Produktionsdiagramm</h3>
+<img src="myplot.png" alt="Optimale Produktionsmengen" style="max-width: 100%; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.2);" />
+
+    </div>
+  </div>
 
   <script>
     function copyCode() {
